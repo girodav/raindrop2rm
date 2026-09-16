@@ -1,0 +1,26 @@
+[tools]
+go = "1.27.1"
+
+[tasks.build]
+description = "Build the sync binary"
+run = "go build -o bin/raindrop2rm ./cmd/raindrop2rm"
+
+[tasks.run]
+description = "Run a single sync pass locally (needs RAINDROP_TOKEN etc. in env)"
+run = "go run ./cmd/raindrop2rm"
+
+[tasks.test]
+description = "Run Go tests"
+run = "go test ./..."
+
+[tasks.tidy]
+description = "Tidy go.mod/go.sum"
+run = "go mod tidy"
+
+[tasks.docker-build]
+description = "Build the raindrop2rm Docker image"
+run = "docker compose build"
+
+[tasks.pair]
+description = "One-time interactive pairing with the reMarkable cloud (stores token in ./data)"
+run = "docker compose run --rm --entrypoint rmapi sync ls"

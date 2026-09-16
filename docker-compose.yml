@@ -1,0 +1,13 @@
+services:
+  sync:
+    build: .
+    image: ghcr.io/girodav/raindrop2rm:latest
+    restart: unless-stopped
+    environment:
+      RAINDROP_TOKEN: ${RAINDROP_TOKEN}
+      RAINDROP_TAG: ${RAINDROP_TAG:-remarkable}
+      RAINDROP_ARCHIVE_TAG: ${RAINDROP_ARCHIVE_TAG:-remarkable-synced}
+      REMARKABLE_FOLDER: ${REMARKABLE_FOLDER:-/Raindrop}
+      POLL_INTERVAL: ${POLL_INTERVAL:-900}
+    volumes:
+      - ./data:/home/nonroot/.config/rmapi
