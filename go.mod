@@ -16,5 +16,5 @@ require (
 	github.com/itlightning/dateparse v0.2.1 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 )
