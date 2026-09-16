@@ -16,25 +16,19 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/raindrop2rm ./cmd/raindrop2rm
 
-## Runtime image: just the two static binaries + CA certs, run as a
-## non-root user. UID 1000 matches the default first user on most single-
-## user Linux boxes, so a bind-mounted ./data directory just works without
-## needing to chown/chmod it for the container.
-FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata \
-  && adduser -D -u 1000 appuser \
-  && mkdir -p /home/appuser/.config/rmapi \
-  && chown -R appuser:appuser /home/appuser
+## Runtime image: just the two static binaries, nothing else. No shell, no
+## package manager, no OS beyond CA certs -- the smallest attack surface
+## this can have. Runs as the image's built-in nonroot user
+## (UID 65532, home /home/nonroot).
+FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=rmapi-builder /out/rmapi /usr/local/bin/rmapi
 COPY --from=app-builder /out/raindrop2rm /usr/local/bin/raindrop2rm
-
-USER appuser
 
 # rmapi stores its device pairing here; mount a volume on this path so
 # pairing survives restarts and is shared between `mise run pair` and the
 # long-running sync process.
-ENV RMAPI_CONFIG=/home/appuser/.config/rmapi/rmapi.conf
-VOLUME /home/appuser/.config/rmapi
+ENV RMAPI_CONFIG=/home/nonroot/.config/rmapi/rmapi.conf
+VOLUME /home/nonroot/.config/rmapi
 
 ENV WORK_DIR=/tmp/raindrop2rm
 ENV POLL_INTERVAL=900

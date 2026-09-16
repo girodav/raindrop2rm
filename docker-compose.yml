@@ -10,4 +10,4 @@ services:
       REMARKABLE_FOLDER: ${REMARKABLE_FOLDER:-/Raindrop}
       POLL_INTERVAL: ${POLL_INTERVAL:-900}
     volumes:
-      - ./data:/home/appuser/.config/rmapi
+      - ./data:/home/nonroot/.config/rmapi

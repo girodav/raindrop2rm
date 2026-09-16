@@ -17,6 +17,10 @@ reMarkable tablet a few minutes later.
 5. Swaps the `#remarkable` tag for `#remarkable-synced` so the raindrop
    isn't processed again.
 
+The image itself is just the two static Go binaries on a
+[distroless](https://github.com/GoogleContainerTools/distroless) base: no
+shell, no package manager, runs as nonroot.
+
 Papers saved as raw PDFs render fine but aren't cropped or reformatted.
 If you want that, run [paper2remarkable](https://github.com/GjjvdBurg/paper2remarkable)
 separately, it uploads via `rmapi` too so it fits the same setup.
@@ -30,8 +34,8 @@ separately, it uploads via `rmapi` too so it fits the same setup.
 3. **Pair with the reMarkable cloud** (one time, interactive):
    `mise run pair`. It prints a URL and a one-time code; open the URL,
    log in, paste the code back. The token is saved to `./data`, which is
-   git-ignored. The container runs as UID 1000 (non-root); if your host
-   user isn't UID 1000, `chown -R 1000:1000 ./data` first.
+   git-ignored. The image runs as the distroless nonroot user (UID
+   65532), so `mkdir -p data && chown -R 65532:65532 data` first.
 
 ## Running
 
@@ -53,7 +57,7 @@ services:
       REMARKABLE_FOLDER: ${REMARKABLE_FOLDER:-/Raindrop}
       POLL_INTERVAL: ${POLL_INTERVAL:-900}
     volumes:
-      - ./data:/home/appuser/.config/rmapi
+      - ./data:/home/nonroot/.config/rmapi
 ```
 
 `.env` (see the config table below for what each var does):
