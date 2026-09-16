@@ -1,7 +1,7 @@
 services:
   sync:
     build: .
-    image: raindrop2rm
+    image: ghcr.io/girodav/raindrop2rm:latest
     restart: unless-stopped
     environment:
       RAINDROP_TOKEN: ${RAINDROP_TOKEN}

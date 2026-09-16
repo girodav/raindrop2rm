@@ -32,9 +32,17 @@ reMarkable tablet a few minutes later.
 
 ## Running
 
+Images are built and pushed to `ghcr.io/girodav/raindrop2rm` automatically
+by GitHub Actions on every push to `main`. On any machine, pull instead of
+building:
+
 ```sh
+docker compose pull
 docker compose up -d
 ```
+
+(the first time you pull on a new machine you may need `docker login
+ghcr.io` if the package isn't public yet)
 
 Polls every `POLL_INTERVAL` seconds (default 900 = 15 min). Set
 `POLL_INTERVAL=0` to run once and exit.
