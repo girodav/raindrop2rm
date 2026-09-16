@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 go build -o /out/raindrop2rm ./cmd/raindrop2rm
 ## package manager, no OS beyond CA certs -- the smallest attack surface
 ## this can have. Runs as the image's built-in nonroot user
 ## (UID 65532, home /home/nonroot).
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 COPY --from=rmapi-builder /out/rmapi /usr/local/bin/rmapi
 COPY --from=app-builder /out/raindrop2rm /usr/local/bin/raindrop2rm
 
