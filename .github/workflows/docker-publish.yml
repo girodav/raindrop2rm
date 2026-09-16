@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -20,9 +22,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/build-push-action@v6
+        id: push
         with:
           context: .
           push: true
           tags: |
             ghcr.io/girodav/raindrop2rm:latest
             ghcr.io/girodav/raindrop2rm:${{ github.sha }}
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/girodav/raindrop2rm
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

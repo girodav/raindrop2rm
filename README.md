@@ -59,6 +59,14 @@ services:
 RAINDROP_TOKEN=your-raindrop-test-token
 ```
 
+Each image also carries a signed build provenance attestation, so you can
+verify it was actually built by this repo's GitHub Actions workflow and
+hasn't been tampered with in the registry:
+
+```sh
+gh attestation verify oci://ghcr.io/girodav/raindrop2rm:latest --owner girodav
+```
+
 Then:
 
 ```sh
