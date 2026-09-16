@@ -102,28 +102,24 @@ func syncOnce(rd *raindrop.Client, up *rmupload.Uploader, cfg config) error {
 func processItem(rd *raindrop.Client, up *rmupload.Uploader, cfg config, item raindrop.Raindrop) error {
 	log.Printf("processing %q (%s)", item.Title, item.Link)
 
-	link := pdf.ResolveURL(item.Link)
-
-	isDirectPDF, err := pdf.IsPDF(link)
+	isDirectPDF, err := pdf.IsPDF(item.Link)
 	if err != nil {
 		log.Printf("pdf check failed for %q, falling back to article extraction: %v", item.Title, err)
 	}
 
 	var path string
 	if isDirectPDF {
-		// item.Link (not the resolved link) so p2r's own provider-specific
-		// handling (arXiv, PubMed, ACM, ...) kicks in.
 		path, err = pdf.P2R(cfg.P2RBin, cfg.RmapiBin, item.Link, cfg.WorkDir)
 		if err != nil {
 			return err
 		}
 		defer os.RemoveAll(filepath.Dir(path))
 	} else {
-		art, err := extract.FromURL(link)
+		art, err := extract.FromURL(item.Link)
 		if err != nil {
 			return err
 		}
-		path, err = epub.Build(art, link, cfg.WorkDir)
+		path, err = epub.Build(art, item.Link, cfg.WorkDir)
 		if err != nil {
 			return err
 		}
