@@ -48,10 +48,6 @@ Then:
 
 ```sh
 docker compose up -d
-docker compose logs -f       # tail logs
-docker compose restart       # after an .env change
-docker compose down          # stop it
-docker compose pull          # get the latest published image
 ```
 
 ## How it works
