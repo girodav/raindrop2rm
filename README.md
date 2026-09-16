@@ -6,9 +6,7 @@ reMarkable tablet a few minutes later.
 ## How it works
 
 1. Polls the Raindrop.io API for raindrops tagged `#remarkable`.
-2. If the link is a PDF (or an arXiv paper), runs
-   [paper2remarkable](https://github.com/GjjvdBurg/paper2remarkable) to
-   produce a cropped, nicely formatted PDF.
+2. If the link is a direct PDF (or an arXiv paper), downloads it as-is.
 3. Otherwise extracts the article with
    [go-readability](https://codeberg.org/readeck/go-readability) and
    packages it as a reflowable EPUB with
@@ -19,6 +17,10 @@ reMarkable tablet a few minutes later.
 5. Swaps the `#remarkable` tag for `#remarkable-synced` so the raindrop
    isn't processed again.
 
+Papers saved as raw PDFs render fine but aren't cropped or reformatted.
+If you want that, run [paper2remarkable](https://github.com/GjjvdBurg/paper2remarkable)
+separately, it uploads via `rmapi` too so it fits the same setup.
+
 ## Setup
 
 1. **Raindrop test token**: Raindrop.io, Settings, Integrations, "For
@@ -28,7 +30,8 @@ reMarkable tablet a few minutes later.
 3. **Pair with the reMarkable cloud** (one time, interactive):
    `mise run pair`. It prints a URL and a one-time code; open the URL,
    log in, paste the code back. The token is saved to `./data`, which is
-   git-ignored.
+   git-ignored. The container runs as UID 1000 (non-root); if your host
+   user isn't UID 1000, `chown -R 1000:1000 ./data` first.
 
 ## Running
 
@@ -50,7 +53,7 @@ services:
       REMARKABLE_FOLDER: ${REMARKABLE_FOLDER:-/Raindrop}
       POLL_INTERVAL: ${POLL_INTERVAL:-900}
     volumes:
-      - ./data:/root/.config/rmapi
+      - ./data:/home/appuser/.config/rmapi
 ```
 
 `.env` (see the config table below for what each var does):

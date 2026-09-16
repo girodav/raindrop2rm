@@ -19,7 +19,7 @@ run = "go mod tidy"
 
 [tasks.docker-build]
 description = "Build the raindrop2rm Docker image"
-run = "docker build -t raindrop2rm ."
+run = "docker compose build"
 
 [tasks.pair]
 description = "One-time interactive pairing with the reMarkable cloud (stores token in ./data)"

@@ -5,7 +5,6 @@ package main
 import (
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -22,7 +21,6 @@ type config struct {
 	ArchiveTag    string
 	RemarkableDir string
 	RmapiBin      string
-	P2RBin        string
 	WorkDir       string
 	PollInterval  time.Duration
 }
@@ -34,7 +32,6 @@ func loadConfig() config {
 		ArchiveTag:    getenv("RAINDROP_ARCHIVE_TAG", "remarkable-synced"),
 		RemarkableDir: getenv("REMARKABLE_FOLDER", "/Raindrop"),
 		RmapiBin:      getenv("RMAPI_BIN", "rmapi"),
-		P2RBin:        getenv("P2R_BIN", "p2r"),
 		WorkDir:       getenv("WORK_DIR", "/tmp/raindrop2rm"),
 	}
 
@@ -102,29 +99,27 @@ func syncOnce(rd *raindrop.Client, up *rmupload.Uploader, cfg config) error {
 func processItem(rd *raindrop.Client, up *rmupload.Uploader, cfg config, item raindrop.Raindrop) error {
 	log.Printf("processing %q (%s)", item.Title, item.Link)
 
-	isDirectPDF, err := pdf.IsPDF(item.Link)
+	link := pdf.ResolveURL(item.Link)
+
+	isDirectPDF, err := pdf.IsPDF(link)
 	if err != nil {
 		log.Printf("pdf check failed for %q, falling back to article extraction: %v", item.Title, err)
 	}
 
 	var path string
 	if isDirectPDF {
-		path, err = pdf.P2R(cfg.P2RBin, cfg.RmapiBin, item.Link, cfg.WorkDir)
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(filepath.Dir(path))
+		path, err = pdf.Download(link, item.Title, cfg.WorkDir)
 	} else {
-		art, err := extract.FromURL(item.Link)
-		if err != nil {
-			return err
+		var art *extract.Article
+		art, err = extract.FromURL(link)
+		if err == nil {
+			path, err = epub.Build(art, link, cfg.WorkDir)
 		}
-		path, err = epub.Build(art, item.Link, cfg.WorkDir)
-		if err != nil {
-			return err
-		}
-		defer os.Remove(path)
 	}
+	if err != nil {
+		return err
+	}
+	defer os.Remove(path)
 
 	if err := up.Upload(path); err != nil {
 		return err
