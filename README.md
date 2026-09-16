@@ -33,16 +33,41 @@ reMarkable tablet a few minutes later.
 ## Running
 
 Images are built and pushed to `ghcr.io/girodav/raindrop2rm` automatically
-by GitHub Actions on every push to `main`. On any machine, pull instead of
-building:
+by GitHub Actions on every push to `main`, so any machine can run this
+without cloning the repo or building anything. Just these two files:
+
+`docker-compose.yml`:
+
+```yaml
+services:
+  sync:
+    image: ghcr.io/girodav/raindrop2rm:latest
+    restart: unless-stopped
+    environment:
+      RAINDROP_TOKEN: ${RAINDROP_TOKEN}
+      RAINDROP_TAG: ${RAINDROP_TAG:-remarkable}
+      RAINDROP_ARCHIVE_TAG: ${RAINDROP_ARCHIVE_TAG:-remarkable-synced}
+      REMARKABLE_FOLDER: ${REMARKABLE_FOLDER:-/Raindrop}
+      POLL_INTERVAL: ${POLL_INTERVAL:-900}
+    volumes:
+      - ./data:/root/.config/rmapi
+```
+
+`.env` (see the config table below for what each var does):
 
 ```sh
-docker compose pull
+RAINDROP_TOKEN=your-raindrop-test-token
+```
+
+Then:
+
+```sh
+docker compose run --rm --entrypoint rmapi sync ls   # one-time pairing, see Setup step 3
 docker compose up -d
 ```
 
-(the first time you pull on a new machine you may need `docker login
-ghcr.io` if the package isn't public yet)
+If working from a clone of this repo, `docker compose pull` refreshes to
+the latest published image instead of rebuilding.
 
 Polls every `POLL_INTERVAL` seconds (default 900 = 15 min). Set
 `POLL_INTERVAL=0` to run once and exit.
