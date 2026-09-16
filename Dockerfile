@@ -1,7 +1,7 @@
 ## Build rmapi (reMarkable cloud CLI) from the actively-maintained fork.
 ## Note: rmapi's go.mod has a `replace` directive, so `go install pkg@version`
 ## refuses it -- clone and build from source instead.
-FROM golang:1.27-alpine AS rmapi-builder
+FROM golang:1.27-alpine@sha256:cf6fca6641884b8433441b2b0652976f975e1d0fdd26d177eaaf8596087f3125 AS rmapi-builder
 ARG RMAPI_VERSION=v0.0.35
 RUN apk add --no-cache git
 RUN git clone --depth 1 --branch ${RMAPI_VERSION} https://github.com/ddvk/rmapi.git /src/rmapi
@@ -9,7 +9,7 @@ WORKDIR /src/rmapi
 RUN CGO_ENABLED=0 go build -o /out/rmapi .
 
 ## Build raindrop2rm itself.
-FROM golang:1.27-alpine AS app-builder
+FROM golang:1.27-alpine@sha256:cf6fca6641884b8433441b2b0652976f975e1d0fdd26d177eaaf8596087f3125 AS app-builder
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 go build -o /out/raindrop2rm ./cmd/raindrop2rm
 ## package manager, no OS beyond CA certs -- the smallest attack surface
 ## this can have. Runs as the image's built-in nonroot user
 ## (UID 65532, home /home/nonroot).
-FROM gcr.io/distroless/static-debian13:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
 COPY --from=rmapi-builder /out/rmapi /usr/local/bin/rmapi
 COPY --from=app-builder /out/raindrop2rm /usr/local/bin/raindrop2rm
 
