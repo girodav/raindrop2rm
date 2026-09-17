@@ -1,5 +1,6 @@
 [tools]
 go = "1.27.1"
+golangci-lint = "2.13.2"
 
 [tasks.build]
 description = "Build the sync binary"
@@ -12,6 +13,14 @@ run = "go run ./cmd/raindrop2rm"
 [tasks.test]
 description = "Run Go tests"
 run = "go test ./..."
+
+[tasks.lint]
+description = "Run golangci-lint (includes go vet)"
+run = "golangci-lint run"
+
+[tasks.ci]
+description = "Everything CI runs"
+depends = ["build", "lint", "test"]
 
 [tasks.tidy]
 description = "Tidy go.mod/go.sum"
