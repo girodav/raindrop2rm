@@ -66,7 +66,7 @@ func (c *Client) do(method, path string, body any, out any) error {
 	if err != nil {
 		return fmt.Errorf("request %s %s: %w", method, path, err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {

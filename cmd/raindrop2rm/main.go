@@ -119,7 +119,7 @@ func processItem(rd *raindrop.Client, up *rmupload.Uploader, cfg config, item ra
 	if err != nil {
 		return err
 	}
-	defer os.Remove(path)
+	defer os.Remove(path) //nolint:errcheck
 
 	if err := up.Upload(path); err != nil {
 		return err

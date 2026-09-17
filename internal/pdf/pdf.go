@@ -51,7 +51,7 @@ func IsPDF(link string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("head request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	return strings.HasPrefix(resp.Header.Get("Content-Type"), "application/pdf"), nil
 }
@@ -70,7 +70,7 @@ func Download(link, title, outDir string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fetch: %w", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("fetch: status %d", resp.StatusCode)
@@ -85,7 +85,7 @@ func Download(link, title, outDir string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("create file: %w", err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	if _, err := io.Copy(f, resp.Body); err != nil {
 		return "", fmt.Errorf("write file: %w", err)
