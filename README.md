@@ -5,7 +5,8 @@ reMarkable tablet a few minutes later.
 
 ## Usage
 
-Two files, no repo clone needed. `docker-compose.yml`:
+Needs [Docker](https://docs.docker.com/get-docker/) installed. Two
+files, no repo clone needed. `docker-compose.yml`:
 
 ```yaml
 services:
@@ -49,6 +50,47 @@ Then:
 ```sh
 docker compose up -d
 ```
+
+Without compose, plain `docker run` works the same way:
+
+```sh
+docker run --rm -it --entrypoint rmapi \
+  -v "$PWD/data:/home/nonroot/.config/rmapi" \
+  ghcr.io/girodav/raindrop2rm:latest ls          # pairing
+
+docker run -d --name raindrop2rm --restart unless-stopped \
+  --env-file .env \
+  -v "$PWD/data:/home/nonroot/.config/rmapi" \
+  ghcr.io/girodav/raindrop2rm:latest
+```
+
+## Without Docker
+
+Build both binaries and run the resulting one directly:
+
+```sh
+mise install
+mise run build                        # -> ./bin/raindrop2rm
+
+RMAPI_VERSION=$(grep -oP '(?<=ARG RMAPI_VERSION=).*' Dockerfile)
+git clone --depth 1 --branch "$RMAPI_VERSION" https://github.com/ddvk/rmapi.git /tmp/rmapi-src
+(cd /tmp/rmapi-src && go build -o ~/go/bin/rmapi .)
+```
+
+Pair once, then run:
+
+```sh
+RMAPI_CONFIG="$PWD/data/rmapi.conf" ~/go/bin/rmapi ls   # pairing
+
+RAINDROP_TOKEN=your-raindrop-test-token \
+  RMAPI_BIN=~/go/bin/rmapi \
+  RMAPI_CONFIG="$PWD/data/rmapi.conf" \
+  ./bin/raindrop2rm
+```
+
+Runs in the foreground, polling on `POLL_INTERVAL`; background it
+yourself (`nohup`, `screen`, a systemd unit) if you want it to survive
+a closed terminal.
 
 ## How it works
 
